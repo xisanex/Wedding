@@ -26,12 +26,16 @@ body {
   align-items: center;
 }
 
-.w-100 {
-  width: 100%;
-}
+$space-sizes: 25, 33, 50, 75, 100;
 
-.h-100 {
-  height: 100%;
+@each $size in $space-sizes {
+  .w-#{$size} {
+    width: #{$size}#{'%'};
+  }
+
+  .h-#{ $size} {
+    height: #{$size}#{'%'};
+  }
 }
 
 $font-sizes: 20, 24, 28;
@@ -50,7 +54,7 @@ $font-weights: 300, 400, 500, 600, 700;
   }
 }
 
-$space-sizes: 8, 16, 24, 32;
+$space-sizes: 4, 8, 16, 24, 32;
 
 @each $size in $space-sizes {
   .m-#{$size} {
