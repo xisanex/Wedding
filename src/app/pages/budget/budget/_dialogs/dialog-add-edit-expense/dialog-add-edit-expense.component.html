@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>{{ dialogData.title }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <!-- <div> -->
+    <mat-form-field appearance="outline" class="w-100 mt-4">
+      <mat-label>Nazwa</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+    <!-- </div> -->
+    <div class="d-flex column-gap-16 mt-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Kategoria</mat-label>
+        <mat-select formControlName="category">
+          @for (expenseCategory of dialogData.expenseCategories; track expenseCategory) {
+            <mat-option [value]="expenseCategory">{{ expenseCategory }}</mat-option>
+          }
+          <mat-option value="one">First option</mat-option>
+          <mat-option value="two">Second option</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <!-- </div> -->
+
+      <!-- <div> -->
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Koszt</mat-label>
+        <input matInput formControlName="cost" />
+      </mat-form-field>
+    </div>
+
+    <div class="d-flex column-gap-16 mt-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Termin zapłaty</mat-label>
+        <input matInput [matDatepicker]="pickerPaymentDeadline" formControlName="paymentDeadline" />
+        <mat-datepicker-toggle matIconSuffix [for]="pickerPaymentDeadline"></mat-datepicker-toggle>
+        <mat-datepicker #pickerPaymentDeadline></mat-datepicker>
+      </mat-form-field>
+      <!-- </div> -->
+
+      <!-- <div> -->
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          @for (expenseStatus of expenseStatusOptions; track expenseStatus) {
+            <mat-option [value]="expenseStatus">{{ expenseStatus | expenseStatus }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="d-flex column-gap-16 mt-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Data opłacenia</mat-label>
+        <input matInput [matDatepicker]="pickerDateOfPayment" formControlName="dateOfPayment" />
+        <mat-datepicker-toggle matIconSuffix [for]="pickerDateOfPayment"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDateOfPayment></mat-datepicker>
+      </mat-form-field>
+      <!--  pusty div do wyrównania formularza -->
+      <div class="w-100"></div>
+    </div>
+
+    <div class="buttons-set">
+      <button matButton="outlined" (click)="close()">Zamknij</button>
+      @if (dialogData.expense) {
+        <button matButton="filled" (click)="editExpense()">Edytuj</button>
+      } @else {
+        <button matButton="filled" (click)="addExpense()">Dodaj</button>
+      }
+    </div>
+  </form>
+</mat-dialog-content>

@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 .page-title {
   display: flex;
   justify-content: space-between;
@@ -22,4 +24,43 @@
 
 .mdc-card {
   background-color: white;
+}
+
+:host {
+  @include mat.table-overrides(
+    (
+      background-color: #fff,
+      row-item-outline-width: 0,
+    )
+  );
+  .budget-items {
+    @include mat.table-overrides(
+      (
+        row-item-container-height: 40px,
+      )
+    );
+  }
+}
+
+.budget-summary {
+  display: flex;
+  column-gap: 48px;
+  padding: 32px;
+
+  .chart-circle-container {
+    width: 30%;
+    display: flex;
+    align-items: center;
+  }
+
+  .budget-items {
+    flex-grow: 1;
+    margin: auto 0;
+
+    .budget-item-color-circle {
+      border-radius: 50%;
+      width: 15px;
+      height: 15px;
+    }
+  }
 }

@@ -1,0 +1,18 @@
+@use '@angular/material' as mat;
+
+:root {
+  @include mat.table-overrides(
+    (
+      header-headline-size: 16px,
+      row-item-label-text-size: 16px,
+    )
+  );
+}
+
+:root {
+  @include mat.dialog-overrides(
+    (
+      supporting-text-size: 16px,
+    )
+  );
+}

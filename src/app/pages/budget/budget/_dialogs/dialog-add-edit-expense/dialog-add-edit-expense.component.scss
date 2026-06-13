@@ -1,0 +1,18 @@
+// .form {
+//   display: flex;
+//   flex-direction: column;
+// }
+
+// .mat-mdc-form-field {
+//   width: 100%;
+// }
+
+.buttons-set {
+  display: flex;
+  justify-content: flex-end;
+  column-gap: 16px;
+
+  button {
+    min-width: 120px;
+  }
+}

@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>Zmiana statusu wydatku</h2>
+<mat-dialog-content>
+  <p class="mb-24">
+    Czy chcesz oznaczyć wydatek o nazwie
+    <span class="fw-500">{{ dialogData.expense.name | defaultValue }}</span> jako
+    <span class="fw-500">{{ statusToSet === expenseStatus.Paid ? 'Opłacony' : 'Nieopłacony' }}</span
+    >?
+  </p>
+
+  @if (dialogData.expense.status === expenseStatus.NonPaid) {
+    <mat-form-field appearance="outline">
+      <mat-label>Data opłacenia</mat-label>
+      <input
+        matInput
+        [matDatepicker]="pickerDateOfPaymentControl"
+        [formControl]="dateOfPaymentControl"
+      />
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="pickerDateOfPaymentControl"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #pickerDateOfPaymentControl></mat-datepicker>
+    </mat-form-field>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button matButton="outlined" (click)="close()">Wróć</button>
+  <button
+    matButton="filled"
+    (click)="statusToSet === expenseStatus.Paid ? setPaidStatus() : setUnpaidStatus()"
+  >
+    Zmień
+  </button>
+</mat-dialog-actions>
