@@ -92,7 +92,6 @@ export class BudgetApiMockService {
     },
     {
       id: '3',
-
       category: 'Dekoracje',
       name: 'Filodendron',
       cost: '5000',
@@ -101,7 +100,6 @@ export class BudgetApiMockService {
     },
     {
       id: '4',
-
       category: 'Ubiór',
       name: 'Garniak',
       cost: '2900',
@@ -111,7 +109,6 @@ export class BudgetApiMockService {
     },
     {
       id: '5',
-
       category: 'Muzyka',
       name: 'DJ',
       cost: '19900',
@@ -121,7 +118,6 @@ export class BudgetApiMockService {
     },
     {
       id: '6',
-
       category: 'Inne',
       name: 'Jakieś gówno',
       cost: '100000',
@@ -140,7 +136,7 @@ export class BudgetApiMockService {
     });
   }
 
-  public changeExpense(expense: ChangeExpense): Observable<Budget> {
+  public addOrChangeExpense(expense: ChangeExpense): Observable<Budget> {
     if (expense.id) {
       const fountIndex: number = this.expenses.findIndex((item) => item.id === expense.id);
       this.expenses[fountIndex] = expense as Expense;

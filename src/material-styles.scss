@@ -16,3 +16,11 @@
     )
   );
 }
+
+:root {
+  @include mat.paginator-overrides(
+    (
+      container-background-color: white,
+    )
+  );
+}

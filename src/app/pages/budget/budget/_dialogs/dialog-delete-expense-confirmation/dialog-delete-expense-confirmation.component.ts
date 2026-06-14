@@ -13,6 +13,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExpenseStatusPipe } from '../../../pipes/expense-status.pipe';
 import { DefaultValuePipe } from '../../../../../shared/pipes/default-value.pipe';
 import { BudgetApiMockService } from '../../../budget-api-mock.service';
+import { DatePipe } from '@angular/common';
+import { GlobalConfig } from '../../../../../core/global-config/global-config.class';
 
 export interface DeleteExpenseConfirmationDialogData {
   expense: Expense;
@@ -27,18 +29,19 @@ export interface DeleteExpenseConfirmationDialogData {
     MatButtonModule,
     ExpenseStatusPipe,
     DefaultValuePipe,
+    DatePipe,
   ],
   templateUrl: './dialog-delete-expense-confirmation.component.html',
   styleUrl: './dialog-delete-expense-confirmation.component.scss',
 })
 export class DialogDeleteExpenseConfirmationComponent {
-  protected readonly dialogData = inject<DeleteExpenseConfirmationDialogData>(MAT_DIALOG_DATA);
+  protected readonly dialogData: DeleteExpenseConfirmationDialogData = inject(MAT_DIALOG_DATA);
+  protected readonly globalConfig: typeof GlobalConfig = GlobalConfig;
   private readonly budgetApiMockService: BudgetApiMockService = inject(BudgetApiMockService);
 
-  private readonly dialogRef = inject(
-    MatDialogRef<DialogDeleteExpenseConfirmationComponent, undefined>,
-  );
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogRef: MatDialogRef<DialogDeleteExpenseConfirmationComponent, Budget> =
+    inject(MatDialogRef);
+  private readonly destroyRef: DestroyRef = inject(DestroyRef);
 
   protected close(budget?: Budget): void {
     this.dialogRef.close(budget);

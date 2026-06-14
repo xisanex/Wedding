@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,6 +26,9 @@ import {
 import { BudgetService } from './budget.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, tap } from 'rxjs';
+import { DatePipe } from '@angular/common';
+import { GlobalConfig } from '../../../core/global-config/global-config.class';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-budget',
@@ -39,12 +42,17 @@ import { filter, tap } from 'rxjs';
     MatTableModule,
     DefaultValuePipe,
     ExpenseStatusPipe,
+    DatePipe,
+    MatPaginatorModule,
   ],
   templateUrl: './budget.component.html',
   providers: [BudgetService],
   styleUrl: './budget.component.scss',
 })
-export class BudgetComponent implements OnInit {
+export class BudgetComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) protected paginator!: MatPaginator;
+  protected hideExpensesPaginator: boolean = false;
+
   protected readonly budgetService: BudgetService = inject(BudgetService);
   protected readonly expenseDisplayedColumns: string[] = [
     'category',
@@ -62,6 +70,7 @@ export class BudgetComponent implements OnInit {
   ];
 
   protected readonly expenseStatus: typeof ExpenseStatus = ExpenseStatus;
+
   protected readonly colors: string[] = [
     '#36A2EB',
     '#FF6384',
@@ -79,6 +88,7 @@ export class BudgetComponent implements OnInit {
     '#FFD166',
     '#6C757D',
   ];
+  protected readonly globalConfig: typeof GlobalConfig = GlobalConfig;
 
   private readonly matDialog: MatDialog = inject(MatDialog);
   private readonly destroyRef: DestroyRef = inject(DestroyRef);
@@ -88,6 +98,9 @@ export class BudgetComponent implements OnInit {
     this.getBudget();
   }
 
+  public ngAfterViewInit() {
+    this.budgetService.expenseDataSource.paginator = this.paginator;
+  }
   protected openDialogAddExpense(): void {
     this.matDialog
       .open<DialogAddEditExpenseComponent, AddEditExpenseDialogData, Budget>(
@@ -180,6 +193,7 @@ export class BudgetComponent implements OnInit {
 
   private saveBudgetToService(budget: Budget) {
     this.budgetService.budget = budget;
+    this.calculateWhetherHideExpensesPaginator();
     this.setCategoriesChart();
   }
 
@@ -188,7 +202,10 @@ export class BudgetComponent implements OnInit {
       .downloadBudget()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        tap(() => this.setCategoriesChart()),
+        tap(() => {
+          this.calculateWhetherHideExpensesPaginator();
+          this.setCategoriesChart();
+        }),
       )
       .subscribe();
   }
@@ -222,5 +239,9 @@ export class BudgetComponent implements OnInit {
         },
       },
     });
+  }
+
+  private calculateWhetherHideExpensesPaginator() {
+    this.hideExpensesPaginator = this.budgetService.expenseDataSource.data.length < 11;
   }
 }

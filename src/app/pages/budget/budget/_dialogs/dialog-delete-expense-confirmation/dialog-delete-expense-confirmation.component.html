@@ -14,7 +14,9 @@
     </p>
     <p class="w-50">
       Termin zapłaty:
-      <span class="fw-500">{{ dialogData.expense.paymentDeadline | defaultValue }}</span>
+      <span class="fw-500">{{
+        dialogData.expense.paymentDeadline | date: globalConfig.DISPLAY_DATE_FORMAT | defaultValue
+      }}</span>
     </p>
   </div>
 
@@ -25,7 +27,9 @@
     </p>
     <p class="w-50">
       Data opłacenia:
-      <span class="fw-500">{{ dialogData.expense.dateOfPayment | defaultValue }}</span>
+      <span class="fw-500">{{
+        dialogData.expense.dateOfPayment | date: globalConfig.DISPLAY_DATE_FORMAT | defaultValue
+      }}</span>
     </p>
   </div>
 </mat-dialog-content>

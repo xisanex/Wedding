@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, LOCALE_ID, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -13,10 +13,10 @@ import { Budget, Expense, ExpenseStatus } from '../../../types/expense.types';
 import { DefaultValuePipe } from '../../../../../shared/pipes/default-value.pipe';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { formatDate } from '@angular/common';
 import { BudgetApiMockService } from '../../../budget-api-mock.service';
+import { GlobalConfig } from '../../../../../core/global-config/global-config.class';
 
 export interface ChangeExpenseStatusDialogData {
   expense: Expense;
@@ -39,17 +39,16 @@ export interface ChangeExpenseStatusDialogData {
   styleUrl: './dialog-change-expense-status.component.scss',
 })
 export class DialogChangeExpenseStatusComponent implements OnInit {
-  private readonly LOCALE_ID = inject(LOCALE_ID);
-
-  protected readonly dialogData = inject<ChangeExpenseStatusDialogData>(MAT_DIALOG_DATA);
+  protected readonly dialogData: ChangeExpenseStatusDialogData = inject(MAT_DIALOG_DATA);
   protected statusToSet!: ExpenseStatus;
-  protected readonly dateOfPaymentControl: FormControl<string | null> = new FormControl(
-    formatDate(new Date(), 'yyyy-MM-dd', this.LOCALE_ID),
-  );
+  protected readonly dateOfPaymentControl: FormControl<Date | null> = new FormControl(new Date(), [
+    Validators.required,
+  ]);
   protected readonly expenseStatus: typeof ExpenseStatus = ExpenseStatus;
   private readonly budgetApiMockService: BudgetApiMockService = inject(BudgetApiMockService);
-  private readonly dialogRef = inject(MatDialogRef<DialogChangeExpenseStatusComponent, undefined>);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogRef: MatDialogRef<DialogChangeExpenseStatusComponent, Budget> =
+    inject(MatDialogRef);
+  private readonly destroyRef: DestroyRef = inject(DestroyRef);
 
   public ngOnInit(): void {
     this.setExpenseStatusToSet();
@@ -63,10 +62,10 @@ export class DialogChangeExpenseStatusComponent implements OnInit {
     this.dateOfPaymentControl.markAsTouched();
     if (this.dateOfPaymentControl.valid) {
       this.budgetApiMockService
-        .changeExpense({
+        .addOrChangeExpense({
           ...this.dialogData.expense,
           status: this.statusToSet,
-          dateOfPayment: this.dateOfPaymentControl.value!,
+          dateOfPayment: GlobalConfig.saveDateToAPI(this.dateOfPaymentControl.value!),
         })
         .pipe(
           takeUntilDestroyed(this.destroyRef),
@@ -78,7 +77,7 @@ export class DialogChangeExpenseStatusComponent implements OnInit {
 
   protected setUnpaidStatus(): void {
     this.budgetApiMockService
-      .changeExpense({
+      .addOrChangeExpense({
         ...this.dialogData.expense,
         status: this.statusToSet,
         dateOfPayment: undefined,

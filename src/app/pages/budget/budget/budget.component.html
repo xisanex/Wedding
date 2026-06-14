@@ -119,8 +119,13 @@
             <p>Data opłacenia</p>
           </th>
           <td mat-cell *matCellDef="let element">
-            <p>{{ element.paymentDeadline | defaultValue }} /</p>
-            <p>{{ element.dateOfPayment | defaultValue }}</p>
+            <p>
+              {{ element.paymentDeadline | date: globalConfig.DISPLAY_DATE_FORMAT | defaultValue }}
+              /
+            </p>
+            <p>
+              {{ element.dateOfPayment | date: globalConfig.DISPLAY_DATE_FORMAT | defaultValue }}
+            </p>
           </td>
         </ng-container>
 
@@ -155,7 +160,21 @@
 
         <tr mat-header-row *matHeaderRowDef="expenseDisplayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: expenseDisplayedColumns"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td
+            class="mat-cell no-expenses-data fs-24 fw-500"
+            [attr.colspan]="expenseDisplayedColumns.length"
+          >
+            Brak dodanych wydatków
+          </td>
+        </tr>
       </table>
+      <mat-paginator
+        [pageSize]="10"
+        [pageSizeOptions]="[10, 20, 30]"
+        [aria-label]="'Wybierz stronę'"
+      />
     </mat-card-content>
   </mat-card>
 </div>

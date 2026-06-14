@@ -60,11 +60,9 @@
 
     <div class="buttons-set">
       <button matButton="outlined" (click)="close()">Zamknij</button>
-      @if (dialogData.expense) {
-        <button matButton="filled" (click)="editExpense()">Edytuj</button>
-      } @else {
-        <button matButton="filled" (click)="addExpense()">Dodaj</button>
-      }
+      <button matButton="filled" (click)="addOrEditExpense()">
+        {{ dialogData.expense ? 'Edytuj' : 'Dodaj' }}
+      </button>
     </div>
   </form>
 </mat-dialog-content>

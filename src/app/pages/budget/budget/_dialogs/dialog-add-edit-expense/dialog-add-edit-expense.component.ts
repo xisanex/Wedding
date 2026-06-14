@@ -17,14 +17,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Budget, Expense, ExpenseStatus } from '../../../types/expense.types';
 import { ExpenseStatusPipe } from '../../../pipes/expense-status.pipe';
 import { BudgetApiMockService } from '../../../budget-api-mock.service';
+import { GlobalConfig } from '../../../../../core/global-config/global-config.class';
 
 interface AddEditExpenseFormGroup {
   name: FormControl<string | null>;
   category: FormControl<string | null>;
   cost: FormControl<string | null>;
   status: FormControl<ExpenseStatus | null>;
-  paymentDeadline: FormControl<string | null>;
-  dateOfPayment: FormControl<string | null>;
+  paymentDeadline: FormControl<Date | null>;
+  dateOfPayment: FormControl<Date | null>;
 }
 
 export interface AddEditExpenseDialogData {
@@ -52,15 +53,16 @@ export interface AddEditExpenseDialogData {
   styleUrl: './dialog-add-edit-expense.component.scss',
 })
 export class DialogAddEditExpenseComponent implements OnInit {
-  protected readonly dialogData = inject<AddEditExpenseDialogData>(MAT_DIALOG_DATA);
+  protected readonly dialogData: AddEditExpenseDialogData = inject(MAT_DIALOG_DATA);
   protected readonly expenseStatusOptions: ExpenseStatus[] = [
     ExpenseStatus.NonPaid,
     ExpenseStatus.Paid,
   ];
 
   private readonly budgetApiMockService: BudgetApiMockService = inject(BudgetApiMockService);
-  private readonly dialogRef = inject(MatDialogRef<DialogAddEditExpenseComponent, undefined>);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogRef: MatDialogRef<DialogAddEditExpenseComponent, Budget> =
+    inject(MatDialogRef);
+  private readonly destroyRef: DestroyRef = inject(DestroyRef);
 
   protected readonly form: FormGroup<AddEditExpenseFormGroup> =
     new FormGroup<AddEditExpenseFormGroup>({
@@ -69,7 +71,10 @@ export class DialogAddEditExpenseComponent implements OnInit {
       cost: new FormControl(null, [Validators.required]),
       status: new FormControl(null, [Validators.required]),
       paymentDeadline: new FormControl(null, [Validators.required]),
-      dateOfPayment: new FormControl(null),
+      dateOfPayment: new FormControl({
+        value: null,
+        disabled: this.dialogData.expense?.status !== ExpenseStatus.Paid,
+      }),
     });
 
   public ngOnInit(): void {
@@ -80,28 +85,33 @@ export class DialogAddEditExpenseComponent implements OnInit {
         category: expense.category,
         cost: expense.cost,
         status: expense.status,
-        paymentDeadline: expense.paymentDeadline,
-        dateOfPayment: expense.dateOfPayment ?? null,
+        paymentDeadline: new Date(expense.paymentDeadline),
+        dateOfPayment: expense.dateOfPayment ? new Date(expense.dateOfPayment) : null,
       });
     }
+    this.listenOnStatusChange();
   }
 
   protected close(budget?: Budget): void {
     this.dialogRef.close(budget);
   }
 
-  protected addExpense(): void {
+  protected addOrEditExpense(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) {
       return;
     }
     this.budgetApiMockService
-      .changeExpense({
+      .addOrChangeExpense({
+        ...(this.dialogData.expense?.id ? { id: this.dialogData.expense.id } : {}),
         name: this.form.controls.name.value!,
         category: this.form.controls.category.value!,
         cost: this.form.controls.cost.value!,
         status: this.form.controls.status.value!,
-        paymentDeadline: this.form.controls.paymentDeadline.value!,
-        dateOfPayment: this.form.controls.dateOfPayment.value ?? undefined,
+        paymentDeadline: GlobalConfig.saveDateToAPI(this.form.controls.paymentDeadline.value!),
+        dateOfPayment: this.form.controls.dateOfPayment.value
+          ? GlobalConfig.saveDateToAPI(this.form.controls.dateOfPayment.value)
+          : undefined,
       })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -110,20 +120,22 @@ export class DialogAddEditExpenseComponent implements OnInit {
       .subscribe();
   }
 
-  protected editExpense(): void {
-    this.budgetApiMockService
-      .changeExpense({
-        id: this.dialogData.expense!.id,
-        name: this.form.controls.name.value!,
-        category: this.form.controls.category.value!,
-        cost: this.form.controls.cost.value!,
-        status: this.form.controls.status.value!,
-        paymentDeadline: this.form.controls.paymentDeadline.value!,
-        dateOfPayment: this.form.controls.dateOfPayment.value ?? undefined,
-      })
+  private listenOnStatusChange(): void {
+    const dateOfPaymentControl: FormControl<Date | null> = this.form.controls.dateOfPayment;
+    this.form.controls.status.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        tap((res) => this.close(res)),
+        tap((status) => {
+          if (status === ExpenseStatus.Paid) {
+            dateOfPaymentControl.enable();
+            dateOfPaymentControl.addValidators(Validators.required);
+          } else {
+            dateOfPaymentControl.reset();
+            dateOfPaymentControl.disable();
+            dateOfPaymentControl.removeValidators(Validators.required);
+          }
+          dateOfPaymentControl.updateValueAndValidity();
+        }),
       )
       .subscribe();
   }
