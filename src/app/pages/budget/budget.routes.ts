@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { EditBudgetComponent } from './edit-budget/edit-budget.component';
 import { BudgetComponent } from './budget/budget.component';
+import { AddEditBudgetComponent } from './add-edit-budget/add-edit-budget.component';
 
 export const budgetRoutes: Routes = [
   {
@@ -8,11 +8,15 @@ export const budgetRoutes: Routes = [
     loadComponent: () => BudgetComponent,
   },
   {
-    path: 'edit',
-    loadComponent: () => EditBudgetComponent,
+    path: 'edit/:id',
+    loadComponent: () => AddEditBudgetComponent,
+  },
+  {
+    path: 'add',
+    loadComponent: () => AddEditBudgetComponent,
   },
   {
     path: '**',
-    redirectTo: ''
-  }
+    redirectTo: '',
+  },
 ];

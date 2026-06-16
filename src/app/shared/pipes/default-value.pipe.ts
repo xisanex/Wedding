@@ -8,7 +8,7 @@ export enum DefaultValues {
   name: 'defaultValue',
 })
 export class DefaultValuePipe implements PipeTransform {
-  transform(value: string | undefined | null): string {
-    return value ?? DefaultValues.Dash;
+  transform(value: string | undefined | null, placeholder?: string): string {
+    return value ? value : (placeholder ?? DefaultValues.Dash);
   }
 }

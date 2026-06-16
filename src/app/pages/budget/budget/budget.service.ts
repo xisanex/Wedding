@@ -34,17 +34,26 @@ export class BudgetService {
     return this._expenseDataSource;
   }
 
-  public set budget(budget: Budget) {
+  public get budget(): Budget | undefined {
+    return this._budget;
+  }
+
+  public get hasBudget(): boolean {
+    return !!this._budget && !!Object.keys(this._budget).length;
+  }
+
+  public set budget(budget: Budget | undefined) {
     this._budget = budget;
     this._expenseDataSource.data = this.expenses;
   }
 
-  public downloadBudget(): Observable<Budget> {
-    return this.budgetApiMockService.getBudget().pipe(
-      tap((budget) => {
-        this.budget = budget;
-        this._expenseCategories = budget.categoriesDetails?.map((category) => category.name) ?? [];
-      }),
-    );
+  public downloadBudget(): Observable<Budget | undefined> {
+    return this.budgetApiMockService.getBudget().pipe(tap((budget) => (this.budget = budget)));
+  }
+
+  public downloadCategories(): Observable<string[] | undefined> {
+    return this.budgetApiMockService
+      .getCategories()
+      .pipe(tap((categories) => (this._expenseCategories = categories ?? [])));
   }
 }

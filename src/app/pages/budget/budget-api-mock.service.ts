@@ -32,6 +32,16 @@ export class BudgetApiMockService {
     },
   };
 
+  private readonly categories: string[] = [
+    'Sala',
+    'Fotograf i kamerzysta',
+    'Dekoracje',
+    'Ubiór',
+    'Muzyka',
+    'Inna kategoria',
+    'Inne',
+  ];
+
   private readonly categoriesDetails: CategoryDetails[] = [
     {
       id: '1',
@@ -127,7 +137,7 @@ export class BudgetApiMockService {
     },
   ];
 
-  public getBudget(): Observable<Budget> {
+  public getBudget(): Observable<Budget | undefined> {
     return of({
       id: '1',
       budgetBalance: this.budgetBalance,
@@ -136,7 +146,7 @@ export class BudgetApiMockService {
     });
   }
 
-  public addOrChangeExpense(expense: ChangeExpense): Observable<Budget> {
+  public addOrChangeExpense(expense: ChangeExpense): Observable<Budget | undefined> {
     if (expense.id) {
       const fountIndex: number = this.expenses.findIndex((item) => item.id === expense.id);
       this.expenses[fountIndex] = expense as Expense;
@@ -146,9 +156,13 @@ export class BudgetApiMockService {
     return this.getBudget();
   }
 
-  public deleteExpense(id: string): Observable<Budget> {
+  public deleteExpense(id: string): Observable<Budget | undefined> {
     const fountIndex: number = this.expenses.findIndex((expense) => expense.id === id);
     this.expenses.splice(fountIndex, 1);
     return this.getBudget();
+  }
+
+  public getCategories(): Observable<string[] | undefined> {
+    return of(this.categories.length ? this.categories : undefined);
   }
 }

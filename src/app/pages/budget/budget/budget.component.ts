@@ -26,7 +26,7 @@ import {
 import { BudgetService } from './budget.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, tap } from 'rxjs';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { GlobalConfig } from '../../../core/global-config/global-config.class';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
@@ -44,6 +44,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
     ExpenseStatusPipe,
     DatePipe,
     MatPaginatorModule,
+    CommonModule,
   ],
   templateUrl: './budget.component.html',
   providers: [BudgetService],
@@ -96,6 +97,7 @@ export class BudgetComponent implements OnInit, AfterViewInit {
   public ngOnInit(): void {
     Chart.register(...registerables);
     this.getBudget();
+    this.getCategories();
   }
 
   public ngAfterViewInit() {
@@ -197,6 +199,10 @@ export class BudgetComponent implements OnInit, AfterViewInit {
     this.setCategoriesChart();
   }
 
+  private getCategories(): void {
+    this.budgetService.downloadCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+  }
+
   private getBudget(): void {
     this.budgetService
       .downloadBudget()
@@ -218,26 +224,31 @@ export class BudgetComponent implements OnInit, AfterViewInit {
     if (existingChart) {
       existingChart.destroy();
     }
-
-    new Chart('myChart', {
-      type: 'doughnut',
-      data: {
-        datasets: [
-          {
-            data: chartData,
-            borderWidth: 1,
-            backgroundColor: this.colors,
-          },
-        ],
-      },
-      options: {
-        events: [],
-        plugins: {
-          legend: {
-            display: false,
+    if (!chartData.length) {
+      return;
+    }
+    // send to end of queue
+    setTimeout(() => {
+      new Chart('myChart', {
+        type: 'doughnut',
+        data: {
+          datasets: [
+            {
+              data: chartData,
+              borderWidth: 1,
+              backgroundColor: this.colors,
+            },
+          ],
+        },
+        options: {
+          events: [],
+          plugins: {
+            legend: {
+              display: false,
+            },
           },
         },
-      },
+      });
     });
   }
 
